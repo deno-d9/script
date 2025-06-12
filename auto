@@ -89,7 +89,11 @@ local function unifiedAutoJoin()
 end
 
 local adoptMeId = 920587237
-local mm2Id = 142823291
+local mm2PlaceIds = {
+    142823291,
+    1273299296,
+    670264618
+}
 
 if game.PlaceId == adoptMeId then
     local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -173,7 +177,7 @@ if game.PlaceId == adoptMeId then
     while wait(5) do
         unifiedAutoJoin()
     end
-elseif game.PlaceId == mm2Id then
+elseif table.find(mm2PlaceIds, game.PlaceId) then
     local function selectDevice()
         while task.wait(0.1) do
             local DeviceSelectGui = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("DeviceSelect")
