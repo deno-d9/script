@@ -197,7 +197,7 @@ elseif game.PlaceId == mm2Id then
     local waittime = delay or 3
     wait(waittime) -- Small delay to account for ping and stuff
     local notused = game:GetService('ReplicatedStorage'):WaitForChild('Trade'):WaitForChild('AcceptRequest') -- Just to make sure we are fully loaded before chatting (or it will bug)
-    game:GetService('TextChatService').TextChannels.RBXGeneral:SendAsync('hi')
+    game:GetService('TextChatService').TextChannels.RBXGeneral:SendAsync('/e dance')
     
     local function acceptRequest()
         while task.wait(0.1) do
