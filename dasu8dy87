@@ -21,7 +21,7 @@ if game.PlaceId ~= 142823291 then
     return
 end
 
-if #Players:GetPlayers() >= 12 then
+if #game:GetService("Players"):GetPlayers() >= 12 then 
     plr:kick("Server is full. Please join a less populated server")
     return
 end
